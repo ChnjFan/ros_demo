@@ -28,7 +28,8 @@ ros_demo/                            # catkin 工作空间
 ├── build/                           # 编译中间产物（catkin_make 生成）
 ├── devel/                           # 开发环境（setup.bash、可执行文件）
 ├── docs/
-│   └── arch.md                      # ROS 架构详解文档
+│   ├── arch.md                      # ROS 架构详解文档
+│   └── ros_cmd.md                   # ROS 常用命令速查手册
 └── README.md
 ```
 
@@ -144,6 +145,8 @@ if __name__ == "__main__":
 
 ## 常用命令速查
 
+> 完整命令说明与使用示例见 [ROS 常用命令速查手册](docs/ros_cmd.md)
+
 | 命令 | 作用 |
 |------|------|
 | `catkin_make` | 编译工作空间内所有功能包 |
@@ -153,11 +156,14 @@ if __name__ == "__main__":
 | `rosrun <pkg> <node>` | 运行单个节点 |
 | `rosnode list` | 列出当前所有节点 |
 | `rostopic list` | 列出当前所有话题 |
+| `rostopic echo <topic>` | 实时打印话题数据 |
 | `rosmsg show <msg_type>` | 查看消息类型定义 |
+| `rqt_graph` | 图形化查看节点连接关系 |
 
 ## 文档
 
-- [ROS 架构详解](docs/arch.md) — 计算图模型、通信机制、功能包结构、ROS 1 vs ROS 2 对比等
+- [ROS 架构详解](docs/arch.md) — 计算图模型、通信机制（Topic/Service/Action/Parameter）、功能包结构、ROS 1 vs ROS 2 对比等
+- [ROS 常用命令速查手册](docs/ros_cmd.md) — 节点/话题/服务/参数/rosbag 等命令详解，含调试场景与使用示例
 
 ## 后续计划
 
