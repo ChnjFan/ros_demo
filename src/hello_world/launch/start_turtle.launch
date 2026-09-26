@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="hello_world" type="hello_node" name="hello_cpp" output="screen"/>
+    <node pkg="hello_world" type="helloworld_p.py" name="hello_python" output="screen"/>
+</launch>
+
