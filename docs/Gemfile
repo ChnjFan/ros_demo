@@ -1,0 +1,8 @@
+# 本地预览用 Gemfile（GitHub Pages 部署不依赖此文件）
+# 用法：
+#   bundle install
+#   bundle exec jekyll serve
+# 然后访问 http://127.0.0.1:4000
+source "https://rubygems.org"
+
+gem "github-pages", group: :jekyll_plugins

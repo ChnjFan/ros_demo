@@ -1,3 +1,8 @@
+---
+title: ROS 常用命令速查手册
+nav_order: 4
+---
+
 # ROS 常用命令速查手册
 
 > 适用于 ROS 1（Melodic / Noetic）。按功能分类整理，含命令解释和使用示例。

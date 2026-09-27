@@ -27,9 +27,12 @@ ros_demo/                            # catkin 工作空间
 │           └── start_turtle.launch  # 启动文件（同时启动 C++/Python 节点）
 ├── build/                           # 编译中间产物（catkin_make 生成）
 ├── devel/                           # 开发环境（setup.bash、可执行文件）
-├── docs/
-│   ├── arch.md                      # ROS 架构详解文档
-│   └── ros_cmd.md                   # ROS 常用命令速查手册
+├── docs/                           # 文档站（Jekyll / GitHub Pages）
+│   ├── _config.yml                 # Jekyll 站点配置
+│   ├── index.md                    # 站点首页
+│   ├── arch.md                     # ROS 架构详解文档
+│   ├── comm.md                     # ROS 1 通信机制详解
+│   └── ros_cmd.md                  # ROS 常用命令速查手册
 └── README.md
 ```
 
@@ -163,7 +166,28 @@ if __name__ == "__main__":
 ## 文档
 
 - [ROS 架构详解](docs/arch.md) — 计算图模型、通信机制（Topic/Service/Action/Parameter）、功能包结构、ROS 1 vs ROS 2 对比等
+- [ROS 1 通信机制详解](docs/comm.md) — 协议栈、连接建立流程、C++/Python 代码实战、回调机制、问题排查
 - [ROS 常用命令速查手册](docs/ros_cmd.md) — 节点/话题/服务/参数/rosbag 等命令详解，含调试场景与使用示例
+
+## 在线文档（GitHub Pages）
+
+本项目的 `docs/` 目录是一个 [Jekyll](https://jekyllrb.com/) 站点（主题：[just-the-docs](https://github.com/just-the-docs/just-the-docs)），可通过 GitHub Pages 免费部署：
+
+1. 将仓库推送到 GitHub（分支：`main`）
+2. 仓库页面进入 **Settings → Pages**
+3. **Source** 选择 **Deploy from a branch** → 分支 `main` → 目录 `/ (root)` 改选 **`/docs`**
+4. 保存后等待 1~2 分钟，访问 `https://<用户名>.github.io/ros_demo/`
+
+> 部署前请将 `docs/_config.yml` 中的 `YOUR_USERNAME` 替换为你的 GitHub 用户名，并取消 `baseurl` 注释。
+
+### 本地预览（可选）
+
+```bash
+cd docs
+bundle install          # 首次需要安装 Ruby + Bundler
+bundle exec jekyll serve
+# 访问 http://127.0.0.1:4000
+```
 
 ## 后续计划
 
