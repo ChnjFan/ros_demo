@@ -27,10 +27,9 @@ ros_demo/                            # catkin 工作空间
 │           └── start_turtle.launch  # 启动文件（同时启动 C++/Python 节点）
 ├── build/                           # 编译中间产物（catkin_make 生成）
 ├── devel/                           # 开发环境（setup.bash、可执行文件）
-├── docs/                           # 文档站（Jekyll / GitHub Pages）
-│   ├── _config.yml                 # Jekyll 站点配置
+├── docs/                           # 在线文档（GitHub Pages 零配置部署）
 │   ├── index.md                    # 站点首页
-│   ├── arch.md                     # ROS 架构详解文档
+│   ├── arch.md                     # ROS 架构详解
 │   ├── comm.md                     # ROS 1 通信机制详解
 │   └── ros_cmd.md                  # ROS 常用命令速查手册
 └── README.md
@@ -171,22 +170,21 @@ if __name__ == "__main__":
 
 ## 在线文档（GitHub Pages）
 
-本项目的 `docs/` 目录是一个 [Jekyll](https://jekyllrb.com/) 站点（主题：[just-the-docs](https://github.com/just-the-docs/just-the-docs)），可通过 GitHub Pages 免费部署：
+本项目的 `docs/` 目录通过 GitHub Pages 发布，采用**零配置方案**（参考 [google/tcmalloc](https://github.com/google/tcmalloc) 的做法）—— 无需 `_config.yml`、Gemfile 或 Actions 工作流：
 
-1. 将仓库推送到 GitHub（分支：`main`）
-2. 仓库页面进入 **Settings → Pages**
-3. **Source** 选择 **Deploy from a branch** → 分支 `main` → 目录 `/ (root)` 改选 **`/docs`**
-4. 保存后等待 1~2 分钟，访问 `https://<用户名>.github.io/ros_demo/`
+1. 仓库页面进入 **Settings → Pages**
+2. **Source** 选择 **Deploy from a branch** → 分支 `main` → 目录 **`/docs`** → Save
+3. 推送后等待 1~2 分钟，访问 `https://<用户名>.github.io/ros_demo/`
 
-> 部署前请将 `docs/_config.yml` 中的 `YOUR_USERNAME` 替换为你的 GitHub 用户名，并取消 `baseurl` 注释。
+GitHub Pages 内置的 Jekyll 管线会自动完成：`index.md` 作为首页、文档间相对链接（`xxx.md`）自动转为 `xxx.html`、套用默认主题样式。以后往 `docs/` 加新 Markdown 文件直接 push 即可发布。
 
 ### 本地预览（可选）
 
 ```bash
+gem install jekyll          # 需先安装 Ruby
 cd docs
-bundle install          # 首次需要安装 Ruby + Bundler
-bundle exec jekyll serve
-# 访问 http://127.0.0.1:4000
+jekyll serve --baseurl ""
+# 访问 http://127.0.0.1:4000（本地样式与线上略有差异，以线上为准）
 ```
 
 ## 后续计划

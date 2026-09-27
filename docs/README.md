@@ -1,9 +1,3 @@
----
-title: 首页
-layout: home
-nav_order: 1
----
-
 # ROS Demo 学习笔记
 
 基于 catkin 工作空间的 ROS 1 入门学习工程，包含 C++ / Python 双语言节点示例，以及系统化的中文文档。
@@ -34,6 +28,6 @@ roslaunch hello_world start_turtle.launch
 ```
 ros_demo/
 ├── src/hello_world/     # 功能包：C++/Python 节点 + launch 文件
-├── docs/                # 本文档站（Jekyll）
+├── docs/                # 本文档站（GitHub Pages）
 └── README.md            # 项目说明
 ```
