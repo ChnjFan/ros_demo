@@ -1,8 +1,10 @@
 # Jekyll 站点配置（GitHub Pages）
 # 主题：just-the-docs —— 专为文档站设计，带侧边栏导航和搜索
+# 注意：GitHub Pages 环境未内置 just-the-docs gem，
+# 必须用 remote_theme（构建时从 GitHub 拉取主题），不能用 theme
 title: ROS Demo 学习笔记
 description: ROS 1 入门学习工程 —— 架构、通信机制与常用命令系统文档
-theme: just-the-docs
+remote_theme: just-the-docs/just-the-docs
 
 # 站点 URL（部署后替换为你的实际地址，本地预览可注释掉）
 baseurl: "/ros_demo"          # 若部署到 https://<user>.github.io/ros_demo/ 则取消注释
