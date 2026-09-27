@@ -1,6 +1,6 @@
 # ROS 常用命令速查手册
 
-> 适用于 ROS 1（Melodic / Noetic）。按功能分类整理，含命令解释和使用示例。
+> 适用于 ROS 1 (Melodic / Noetic)。按功能分类整理，含命令解释和使用示例。
 
 ---
 
@@ -125,7 +125,7 @@ rostopic echo -n 1 /turtle1/pose
 ```bash
 rostopic hz <topic_name>
 
-# 示例：查看激光雷达数据频率（通常应为 10Hz）
+# 示例：查看激光雷达数据频率（通常应为 10 Hz）
 rostopic hz /scan
 ```
 
@@ -162,7 +162,7 @@ rostopic pub /turtle1/cmd_vel geometry_msgs/Twist "linear:
 angular:
   z: 1.8"
 
-# 以 10Hz 持续发布（-r 频率）
+# 以 10 Hz 持续发布（-r 频率）
 rostopic pub -r 10 /turtle1/cmd_vel geometry_msgs/Twist "linear:
   x: 1.0
 angular:
@@ -255,16 +255,16 @@ rosservice type /spawn
 ```bash
 rosservice call <service_name> <args>
 
-# 示例1：清除小海龟轨迹
+# 示例 1：清除小海龟轨迹
 rosservice call /clear
 
-# 示例2：在指定坐标生成新海龟
+# 示例 2：在指定坐标生成新海龟
 rosservice call /spawn "x: 5.0
 y: 5.0
 theta: 0.0
 name: 'turtle2'"
 
-# 示例3：重置仿真
+# 示例 3：重置仿真
 rosservice call /reset
 ```
 
@@ -538,10 +538,10 @@ rqt_graph                        # 7. 用图形确认整体连接
 ### 场景 2：测试一个新写的订阅者节点
 
 ```bash
-# 终端1：启动被测节点
+# 终端 1：启动被测节点
 rosrun my_pkg my_subscriber
 
-# 终端2：手动发布测试数据
+# 终端 2：手动发布测试数据
 rostopic pub -r 10 /my_topic std_msgs/String "data: 'test message'"
 ```
 

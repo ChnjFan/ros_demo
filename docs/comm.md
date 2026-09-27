@@ -49,7 +49,7 @@ ROS 1 的通信体系由三大角色和三层协议构成：
 
 ### 2.1 适用场景
 
-**异步、单向、连续流式数据**：传感器数据（激光 `/scan`、图像 `/image_raw`）、控制指令（`/cmd_vel`）、里程计（`/odom`）。
+**异步、单向、连续流式数据**：传感器数据（激光 `/scan`、图像 `/image_raw`）、控制指令 (`/cmd_vel`)、里程计 (`/odom`)。
 
 ### 2.2 连接建立完整流程（面试高频考点）
 
@@ -112,14 +112,14 @@ Publisher                        Subscriber
 
 | 队列 | 作用 | 溢出行为 |
 |------|------|---------|
-| 发布队列 `queue_size`（publish） | 缓存待发送消息 | 队满时**丢弃最旧**的消息 |
-| 订阅队列 `queue_size`（subscribe） | 缓存收到但未处理的消息 | 队满时**丢弃最旧**的消息 |
+| 发布队列 `queue_size` (publish) | 缓存待发送消息 | 队满时**丢弃最旧**的消息 |
+| 订阅队列 `queue_size` (subscribe) | 缓存收到但未处理的消息 | 队满时**丢弃最旧**的消息 |
 
 > **最佳实践**：`publish` 的 `queue_size` 设为实际需求（如 10），**不要设为 0**（0 表示无限队列，可能导致内存暴涨）；`subscribe` 的队列大小决定回调来不及处理时丢多少数据。
 
 ### 2.5 C++ 实现：Publisher / Subscriber
 
-**Publisher（`talker.cpp`）**：
+**Publisher (`talker.cpp`)**：
 
 ```cpp
 #include "ros/ros.h"
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
     // 3. 创建发布者：话题 /chatter，消息类型 std_msgs/String，队列长度 10
     ros::Publisher pub = nh.advertise<std_msgs::String>("chatter", 10);
 
-    ros::Rate rate(10);                                  // 发布频率 10Hz
+    ros::Rate rate(10);                                  // 发布频率 10 Hz
     int count = 0;
     while (ros::ok())                                    // Ctrl+C 或 rosnode kill 时退出
     {
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 }
 ```
 
-**Subscriber（`listener.cpp`）**：
+**Subscriber (`listener.cpp`)**：
 
 ```cpp
 #include "ros/ros.h"
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 
 ### 2.6 Python 实现：Publisher / Subscriber
 
-**Publisher（`talker_p.py`）**：
+**Publisher (`talker_p.py`)**：
 
 ```python
 #!/usr/bin/env python
@@ -190,7 +190,7 @@ if __name__ == "__main__":
 
     pub = rospy.Publisher("chatter", String, queue_size=10)
 
-    rate = rospy.Rate(10)   # 10Hz
+    rate = rospy.Rate(10)   # 10 Hz
     count = 0
     while not rospy.is_shutdown():
         msg = String()
@@ -201,7 +201,7 @@ if __name__ == "__main__":
         count += 1
 ```
 
-**Subscriber（`listener_p.py`）**：
+**Subscriber (`listener_p.py`)**：
 
 ```python
 #!/usr/bin/env python
@@ -269,7 +269,7 @@ int64 sum      # ← 响应部分
 
 ### 3.5 C++ 实现：Service Server / Client
 
-**Server（`server.cpp`）**：
+**Server (`server.cpp`)**：
 
 ```cpp
 #include "ros/ros.h"
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
 }
 ```
 
-**Client（`client.cpp`）**：
+**Client (`client.cpp`)**：
 
 ```cpp
 #include "ros/ros.h"
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
 
 ### 3.6 Python 实现
 
-**Server（`server_p.py`）**：
+**Server (`server_p.py`)**：
 
 ```python
 #!/usr/bin/env python
@@ -361,7 +361,7 @@ if __name__ == "__main__":
     rospy.spin()
 ```
 
-**Client（`client_p.py`）**：
+**Client (`client_p.py`)**：
 
 ```python
 #!/usr/bin/env python
@@ -495,7 +495,7 @@ rosparam dump params.yaml          # 导出全部参数
 | `ros::MultiThreadedSpinner` | 多线程处理回调 | 回调耗时长，需要并发 |
 
 ```cpp
-// 方式1：spinOnce + 循环（注意与 ros::Rate 配合）
+// 方式 1：spinOnce + 循环（注意与 ros::Rate 配合）
 ros::Rate rate(10);
 while (ros::ok())
 {
@@ -504,7 +504,7 @@ while (ros::ok())
     rate.sleep();
 }
 
-// 方式2：异步 Spinner（不阻塞主线程）
+// 方式 2：异步 Spinner（不阻塞主线程）
 ros::AsyncSpinner spinner(2);   // 2 个线程
 spinner.start();
 // ... 主线程自由执行其他任务

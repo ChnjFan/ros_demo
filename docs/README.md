@@ -28,6 +28,6 @@ roslaunch hello_world start_turtle.launch
 ```
 ros_demo/
 ├── src/hello_world/     # 功能包：C++/Python 节点 + launch 文件
-├── docs/                # 本文档站（GitHub Pages）
+├── docs/                # 本文档站 (GitHub Pages)
 └── README.md            # 项目说明
 ```

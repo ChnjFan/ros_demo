@@ -43,9 +43,9 @@ ROS 本质是一个**分布式计算框架**。它的设计哲学是：
 
 ```xml
 <launch>
-    <!-- 节点1：C++ 编写的 hello_node -->
+    <!-- 节点 1：C++ 编写的 hello_node -->
     <node pkg="hello_world" type="hello_node" name="hello_cpp" output="screen"/>
-    <!-- 节点2：Python 编写的 helloworld_p.py -->
+    <!-- 节点 2：Python 编写的 helloworld_p.py -->
     <node pkg="hello_world" type="helloworld_p.py" name="hello_python" output="screen"/>
 </launch>
 ```
@@ -59,14 +59,14 @@ ROS 本质是一个**分布式计算框架**。它的设计哲学是：
 
 **节点内部代码对比：**
 
-**C++ 节点**（`helloworld_c.cpp`）：
+**C++ 节点** (`helloworld_c.cpp`)：
 ```cpp
 ros::init(argc, argv, "hello");   // 1. 初始化节点，注册名称
 ros::NodeHandle n;                 // 2. 创建句柄（管理通信接口）
 ROS_INFO("hello world!测试");      // 3. 日志输出（替代 printf）
 ```
 
-**Python 节点**（`helloworld_p.py`）：
+**Python 节点** (`helloworld_p.py`)：
 ```python
 rospy.init_node("hello_p")                          # 初始化节点
 rospy.loginfo("hello world! by python")             # 日志输出
@@ -298,7 +298,7 @@ roslaunch hello_world start_turtle.launch   # 启动系统
 | **QoS 策略** | 无 | 可靠/尽力/截止期等 |
 | **构建系统** | catkin / catkin_make | ament / colcon |
 | **Python 支持** | Python 2 | Python 3 |
-| **维护状态** | 仅维护到 2025（Noetic） | 持续发展 |
+| **维护状态** | 仅维护到 2025 (Noetic) | 持续发展 |
 
 ---
 
@@ -347,7 +347,7 @@ roslaunch hello_world start_turtle.launch   # 启动系统
 |------|------|------|
 | **应用层** | Node（节点） | 单一职责的计算进程 |
 | **通信层** | Topic/Service/Action/Parameter | 节点间数据交换 |
-| **发现层** | Master（ROS1）/ DDS（ROS2） | 节点互相发现 |
+| **发现层** | Master (ROS 1) / DDS (ROS 2) | 节点互相发现 |
 | **组织层** | Package（功能包） | 代码组织单元 |
 | **编排层** | Launch 文件 | 批量启动与配置 |
 | **构建层** | catkin / ament | 编译与安装 |
