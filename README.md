@@ -179,6 +179,18 @@ docker compose exec ros-dev catkin_make
 docker compose exec ros-dev roslaunch hello_world start_turtle.launch
 ```
 
+直接启动 `plumbing_pub_sub` 的 Topic 发布节点：
+
+```bash
+docker compose exec ros-dev rosrun plumbing_pub_sub pub_sub_node
+```
+
+另开一个终端查看发布到 `/chatter` 的消息：
+
+```bash
+docker compose exec ros-dev rostopic echo /chatter
+```
+
 停止环境：
 
 ```bash

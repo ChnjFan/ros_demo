@@ -11,7 +11,8 @@ int main(int argc, char *argv[])
     // 创建发布者对象
     ros::Publisher pub = nh.advertise<std_msgs::String>("/chatter", 10);
 
-    // 发布逻辑发布数据
+    // 发布逻辑发布数据，按照 10Hz 频率发布消息
+    ros::Rate rate(10);
     int count = 0;
     while (ros::ok())
     {
@@ -24,6 +25,7 @@ int main(int argc, char *argv[])
         ROS_INFO("Publishing message %s", msg.data.c_str());
 
         count++;
+        rate.sleep();
     }
     
 
