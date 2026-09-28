@@ -167,16 +167,25 @@ if __name__ == "__main__":
 - [ROS 架构详解](docs/arch.md) — 计算图模型、通信机制（Topic/Service/Action/Parameter）、功能包结构、ROS 1 vs ROS 2 对比等
 - [ROS 1 通信机制详解](docs/comm.md) — 协议栈、连接建立流程、C++/Python 代码实战、回调机制、问题排查
 - [ROS 常用命令速查手册](docs/ros_cmd.md) — 节点/话题/服务/参数/rosbag 等命令详解，含调试场景与使用示例
+- [Docker Compose 开发环境](docs/docker.md) — 在 macOS 上构建、启动和管理本项目的 ROS 1 容器
 
-## 在线文档 (GitHub Pages)
+## Docker Compose 快速开始
 
-本项目的 `docs/` 目录通过 GitHub Pages 发布，采用**零配置方案**（参考 [google/tcmalloc](https://github.com/google/tcmalloc) 的做法）—— 无需 `_config.yml`、Gemfile 或 Actions 工作流：
+启动 Docker Desktop 后，在项目根目录执行：
 
-1. 仓库页面进入 **Settings → Pages**
-2. **Source** 选择 **Deploy from a branch** → 分支 `main` → 目录 **`/docs`** → Save
-3. 推送后等待 1~2 分钟，访问 `https://<用户名>.github.io/ros_demo/`
+```bash
+docker compose up -d --build
+docker compose exec ros-dev catkin_make
+docker compose exec ros-dev roslaunch hello_world start_turtle.launch
+```
 
-GitHub Pages 内置的 Jekyll 管线会自动完成：`README.md` 作为首页、文档间相对链接 (`xxx.md`) 自动转为 `xxx.html`、套用默认主题样式。以后往 `docs/` 加新 Markdown 文件直接 push 即可发布。
+停止环境：
+
+```bash
+docker compose down
+```
+
+项目源码会实时挂载到容器；Linux 的 `build`、`devel` 产物保存在 Docker 卷中，不会污染 macOS 工作区。详细说明见 [Docker Compose 开发环境](docs/docker.md)。
 
 ### 本地预览（可选）
 

@@ -44,11 +44,11 @@
 
 | 小节 | 内容 | 状态 |
 |------|------|:----:|
-| [1.1 ROS 简介](chapter01/01-introduction.md) | ROS 概念、设计目标、发展历程 | ⬜ |
-| [1.2 ROS 安装](chapter02/02-installation.md) | 虚拟机 + Ubuntu + ROS 安装、测试 | ⬜ |
-| [1.3 ROS 快速体验](chapter03/03-helloworld.md) | HelloWorld 实现 (C++ / Python) | ⬜ |
-| [1.4 ROS 集成开发环境搭建](chapter04/04-ide-setup.md) | 终端、VScode、launch 演示 | ⬜ |
-| [1.5 ROS 架构](chapter05/05-architecture.md) | 文件系统、文件系统命令、计算图 | ⬜ |
+| [1.1 ROS 简介](chapter01/01-introduction.md) | ROS 概念、设计目标、发展历程 | ✅ |
+| [1.2 ROS 安装](chapter01/02-installation.md) | 虚拟机 + Ubuntu + ROS 安装、测试 | ✅ |
+| [1.3 ROS 快速体验](chapter01/03-helloworld.md) | HelloWorld 实现 (C++ / Python) | ✅ |
+| [1.4 ROS 集成开发环境搭建](chapter01/04-ide-setup.md) | 终端、VScode、launch 演示 | ✅ |
+| [1.5 ROS 架构](chapter01/05-architecture.md) | 文件系统、文件系统命令、计算图 | ✅ |
 
 ---
 
@@ -58,9 +58,9 @@
 
 | 小节 | 内容 | 状态 |
 |------|------|:----:|
-| [2.1 话题通信](chapter06/06-topic.md) | 理论模型 → 基本操作 (C++/Python) → 自定义 msg | ⬜ |
-| [2.2 服务通信](chapter07/07-service.md) | 理论模型 → 自定义 srv → 调用 (C++/Python) | ⬜ |
-| [2.3 参数服务器](chapter08/08-parameter.md) | 理论模型 → 参数操作 (C++/Python) | ⬜ |
+| [2.1 话题通信](chapter02/06-topic.md) | 理论模型 → 基本操作 (C++/Python) → 自定义 msg | ✅ |
+| [2.2 服务通信](chapter02/07-service.md) | 理论模型 → 自定义 srv → 调用 (C++/Python) | ✅ |
+| [2.3 参数服务器](chapter02/08-parameter.md) | 理论模型 → 参数操作 (C++/Python) | ✅ |
 | [2.4 常用命令](chapter09/09-commands.md) | rosnode / rostopic / rosmsg / rosservice / rossrv / rosparam | ⬜ |
 | [2.5 通信机制实操](chapter10/10-communication-practice.md) | 话题发布 / 话题订阅 / 服务调用 / 参数设置 | ⬜ |
 | [2.6 通信机制比较](chapter11/11-communication-comparison.md) | 四种通信方式对比与选型 | ⬜ |

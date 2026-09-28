@@ -1,0 +1,12 @@
+.git
+.codegraph
+build
+build_isolated
+devel
+devel_isolated
+logs
+_site
+.jekyll-cache
+vendor
+*.pyc
+*~

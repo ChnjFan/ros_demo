@@ -1,0 +1,57 @@
+name: ros-demo
+
+services:
+  ros-master:
+    image: ros-demo:noetic
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: roscore
+    environment:
+      ROS_MASTER_URI: http://ros-master:11311
+      ROS_HOSTNAME: ros-master
+    healthcheck:
+      test: ["CMD", "bash", "-lc", "source /opt/ros/noetic/setup.bash && rostopic list >/dev/null 2>&1"]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+    init: true
+    restart: unless-stopped
+    volumes:
+      - ros-master-logs:/root/.ros
+
+  ros-dev:
+    image: ros-demo:noetic
+    depends_on:
+      ros-master:
+        condition: service_healthy
+    command: sleep infinity
+    environment:
+      CMAKE_PREFIX_PATH: /workspace/devel:/opt/ros/noetic
+      LD_LIBRARY_PATH: /workspace/devel/lib:/opt/ros/noetic/lib
+      PATH: /opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      PKG_CONFIG_PATH: /workspace/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig
+      PYTHONPATH: /workspace/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages
+      ROS_DISTRO: noetic
+      ROS_ETC_DIR: /opt/ros/noetic/etc/ros
+      ROS_MASTER_URI: http://ros-master:11311
+      ROS_HOSTNAME: ros-dev
+      ROS_PACKAGE_PATH: /workspace/src:/opt/ros/noetic/share
+      ROS_PYTHON_VERSION: "3"
+      ROS_ROOT: /opt/ros/noetic/share/ros
+      ROS_VERSION: "1"
+    init: true
+    stdin_open: true
+    tty: true
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - ros-build:/workspace/build
+      - ros-devel:/workspace/devel
+      - ros-dev-logs:/root/.ros
+
+volumes:
+  ros-build:
+  ros-devel:
+  ros-dev-logs:
+  ros-master-logs:
