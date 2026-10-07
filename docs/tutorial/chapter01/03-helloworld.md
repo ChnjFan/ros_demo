@@ -1,8 +1,6 @@
 # 1.3 ROS 快速体验
 
-> 本节学习目标：创建第一个 ROS 工作空间，编写并运行 C++ 和 Python 版本的 HelloWorld 节点，获得第一次成功的体验。
-
----
+> 本节学习主要目标是创建一个 ROS 工作空间，编写并运行 C++ 和 Python 版本的 HelloWorld 节点。
 
 ## 1.3.1 HelloWorld 实现简介
 
@@ -123,19 +121,19 @@ int main(int argc, char *argv[])
 }
 ```
 
-**代码逐行解释：**
+**关键代码解释：**
 
-第 1 行 `#include "ros/ros.h"` 引入 ROS C++ 核心库，这是编写 ROS C++ 节点必须的头文件，包含了初始化、日志、节点句柄等核心功能。
+`#include "ros/ros.h"` 引入 ROS C++ 核心库，这是编写 ROS C++ 节点必须的头文件，包含了初始化、日志、节点句柄等核心功能。
 
-第 2 行 `#include "std_msgs/String.h"` 引入标准字符串消息类型。虽然本例只是输出日志没有发布消息，但加上它是良好的编程习惯，后续扩展时可以直接使用。
+`#include "std_msgs/String.h"` 引入**标准字符串消息类型**。虽然本例只是输出日志没有发布消息，但加上它是良好的编程习惯，后续扩展时可以直接使用。
 
-第 7 行 `ros::init(argc, argv, "hello_c")` 初始化 ROS 节点，将节点注册到 Master，名称为 `"hello_c"`。这个函数必须是节点 main 函数中第一个调用的 ROS 函数，它负责解析命令行参数、建立与 Master 的连接。
+`ros::init(argc, argv, "hello_c")` 初始化 ROS 节点，将节点注册到 Master，名称为 `"hello_c"`。这个函数必须是节点 main 函数中第一个调用的 ROS 函数，它负责解析命令行参数、建立与 Master 的连接。
 
-第 11 行 `ros::NodeHandle nh` 创建节点句柄（NodeHandle）。它是节点与 ROS 系统通信的入口，后续创建发布者、订阅者、客户端、参数操作等都要通过它。可以把 NodeHandle 想象成节点的"手"，通过这只手来抓取 ROS 的各种服务。
+`ros::NodeHandle nh` 创建节点句柄（NodeHandle）。它是节点与 ROS 系统通信的入口，后续创建发布者、订阅者、客户端、参数操作等都要通过它。
 
-第 15 行 `ROS_INFO("Hello World! by C++")` 输出一条 INFO 级别的日志。`ROS_INFO` 是一个宏，用法类似 `printf`，支持格式化输出（如 `ROS_INFO("count = %d", count)`）。相比标准输出，ROS_INFO 会自动添加时间戳、节点名、日志级别，并同步发布到 `/rosout` 话题供远程查看。
+`ROS_INFO("Hello World! by C++")` 输出一条 INFO 级别的日志。`ROS_INFO` 是一个宏，用法类似 `printf`，支持格式化输出（如 `ROS_INFO("count = %d", count)`）。相比标准输出，ROS_INFO 会自动添加时间戳、节点名、日志级别，并同步发布到 `/rosout` 话题供远程查看。
 
-第 18 行 `ros::spinOnce()` 处理一次当前积压的回调。本例中没有订阅任何话题，所以实际上没有回调需要处理，但加上它是良好的编程习惯。在带有 while 循环的节点中，`ros::spinOnce()` 放在循环体内可以持续处理回调，而不阻塞主循环。
+`ros::spinOnce()` 处理一次当前积压的回调。本例中没有订阅任何话题，所以实际上没有回调需要处理，但加上它是良好的编程习惯。在带有 while 循环的节点中，`ros::spinOnce()` 放在循环体内可以持续处理回调，而不阻塞主循环。
 
 ### 步骤 2：配置 CMakeLists.txt
 
@@ -198,7 +196,7 @@ rosrun hello_world hello_node
 > 💡 **rosrun 的用法**：`rosrun <包名> <可执行文件名>`
 > - 包名：`hello_world`（`package.xml` 中定义的名字）
 > - 可执行文件名：`hello_node`（`CMakeLists.txt` 中 `add_executable` 定义的目标名）
-
+>
 > ⚠️ **常见错误**：如果提示 `Couldn't find executable named hello_node`，说明：
 > 1. 编译失败了 → 检查 `catkin_make` 输出
 > 2. 没有 source → 执行 `source devel/setup.bash`
