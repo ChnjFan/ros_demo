@@ -27,11 +27,13 @@ ros_demo/                            # catkin 工作空间
 │           └── start_turtle.launch  # 启动文件（同时启动 C++/Python 节点）
 ├── build/                           # 编译中间产物（catkin_make 生成）
 ├── devel/                           # 开发环境（setup.bash、可执行文件）
-├── docs/                           # 在线文档（GitHub Pages 零配置部署）
-│   ├── README.md                   # 站点首页
+├── docs/                           # 在线文档（MkDocs Material + GitHub Actions）
+│   ├── index.md                    # 站点首页
 │   ├── arch.md                     # ROS 架构详解
 │   ├── comm.md                     # ROS 1 通信机制详解
-│   └── ros_cmd.md                  # ROS 常用命令速查手册
+│   ├── ros_cmd.md                  # ROS 常用命令速查手册
+│   ├── docker.md                   # Docker Compose 开发环境
+│   └── tutorial/                   # ROS 1 完全教程
 └── README.md
 ```
 
@@ -164,6 +166,15 @@ if __name__ == "__main__":
 
 ## 文档
 
+📖 **在线文档**：<https://chnjfan.github.io/ros_demo/>（MkDocs Material 构建，推送到 `main` 后由 GitHub Actions 自动部署）
+
+本地预览：
+
+```bash
+pip install -r requirements.txt
+mkdocs serve                      # http://127.0.0.1:8000
+```
+
 - [ROS 架构详解](docs/arch.md) — 计算图模型、通信机制（Topic/Service/Action/Parameter）、功能包结构、ROS 1 vs ROS 2 对比等
 - [ROS 1 通信机制详解](docs/comm.md) — 协议栈、连接建立流程、C++/Python 代码实战、回调机制、问题排查
 - [ROS 常用命令速查手册](docs/ros_cmd.md) — 节点/话题/服务/参数/rosbag 等命令详解，含调试场景与使用示例
@@ -182,7 +193,7 @@ docker compose exec ros-dev roslaunch hello_world start_turtle.launch
 直接启动 `plumbing_pub_sub` 的 Topic 发布节点：
 
 ```bash
-docker compose exec ros-dev rosrun plumbing_pub_sub pub_sub_node
+docker compose exec ros-dev rosrun plumbing_pub_sub pub_node
 ```
 
 另开一个终端查看发布到 `/chatter` 的消息：
@@ -191,22 +202,19 @@ docker compose exec ros-dev rosrun plumbing_pub_sub pub_sub_node
 docker compose exec ros-dev rostopic echo /chatter
 ```
 
+也可以在另一个终端启动订阅节点：
+
+```bash
+docker compose exec ros-dev rosrun plumbing_pub_sub sub_node
+```
+
 停止环境：
 
 ```bash
 docker compose down
 ```
 
-项目源码会实时挂载到容器；Linux 的 `build`、`devel` 产物保存在 Docker 卷中，不会污染 macOS 工作区。详细说明见 [Docker Compose 开发环境](docs/docker.md)。
-
-### 本地预览（可选）
-
-```bash
-gem install jekyll          # 需先安装 Ruby
-cd docs
-jekyll serve --baseurl ""
-# 访问 http://127.0.0.1:4000（本地样式与线上略有差异，以线上为准）
-```
+项目源码会实时挂载到容器；Linux 的 `build`、`devel` 产物保存在 Docker 卷中。详细说明见 [Docker Compose 开发环境](docs/docker.md)。
 
 ## 后续计划
 

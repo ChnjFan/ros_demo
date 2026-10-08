@@ -10,26 +10,18 @@
 
 ### 模型图解
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     话题通信模型                                  │
-│                                                                 │
-│   ┌──────────────┐                      ┌──────────────┐        │
-│   │  Publisher   │                      │  Subscriber  │        │
-│   │  (发布者)     │                      │  (订阅者)     │        │
-│   │              │                      │              │        │
-│   │  "我发布数据  │      /chatter       │  "我要接收    │        │
-│   │   到/chatter"│ ═══════════════════▶ │   /chatter"  │        │
-│   └──────┬───────┘                      └──────┬───────┘        │
-│          │                                     │                │
-│          ▼                                     ▼                │
-│   ┌──────────────┐                      ┌──────────────┐        │
-│   │  发布队列      │      TCPROS        │  订阅队列       │        │
-│   │  (queue_size)│ ═══════════════════▶│  (queue_size) │        │
-│   └──────────────┘                      └──────────────┘        │
-│                                                                 │
-│   特点：异步、单向、流式、多对多                                   │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    Pub["Publisher<br/>Publish data to /chatter"]
+    Sub["Subscriber<br/>Subscribe data /chatter"]
+
+    PubQ["Publish queue<br/>(queue_size)"]
+    SubQ["Subscribe queue<br/>(queue_size)"]
+
+    Pub -->|"/chatter 话题"| Sub
+    Pub --> PubQ
+    Sub --> SubQ
+    PubQ -->|"TCPROS 传输"| SubQ
 ```
 
 ### 核心特点
@@ -54,25 +46,21 @@
 
 一次完整的话题通信经历 5 个步骤：
 
-```
-Publisher                     Master                      Subscriber
-   │                            │                             │
-   │ ① registerPublisher(/chatter)                             │
-   │ ─────────────────────────▶│ 登记：/chatter 的发布者地址   │
-   │                            │                             │
-   │                            ② publisherUpdate(/chatter)   │
-   │                            │ "有人发布了 /chatter"        │
-   │                            │ ─────────────────────────▶ │
-   │                            │                             │
-   │ ③ requestTopic(/chatter)   │                             │
-   │ ◀─────────────────────────│─────────────────────────────│
-   │   (Subscriber 请求建立连接)  │                             │
-   │                            │                             │
-   │ ④ 建立 TCPROS Socket 直连   │                             │
-   │ ═══════════════════════════════════════════════════════▶ │
-   │                            │                             │
-   │ ⑤ 数据持续点对点传输（Master 不参与）                       │
-   │ ═══════════════════════════════════════════════════════▶ │
+```mermaid
+sequenceDiagram
+    participant Pub as Publisher
+    participant Master as ROS Master
+    participant Sub as Subscriber
+
+    Pub->>Master: ① registerPublisher(/chatter)
+    Note right of Master: 登记：/chatter 的发布者地址
+    Master-->>Sub: ② publisherUpdate(/chatter)<br/>"有人发布了 /chatter"
+    Sub->>Pub: ③ requestTopic(/chatter)<br/>请求建立连接
+    Pub-->>Sub: ④ 建立 TCPROS Socket 直连
+
+    loop ⑤ 数据持续点对点传输（Master 不参与）
+        Pub->>Sub: /chatter 消息
+    end
 ```
 
 1. **Publisher 注册**：发布者启动时向 Master 注册话题名、消息类型和自己的地址
@@ -656,4 +644,4 @@ rosrun hello_world person_listener_p.py
 
 话题通信是 ROS 最常用的通信方式。接下来学习另一种重要的通信机制——服务通信：
 
-→ **[2.2 服务通信](../../chapter02/07-service.md)**
+→ **[2.2 服务通信](07-service.md)**

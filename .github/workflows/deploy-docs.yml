@@ -1,0 +1,60 @@
+name: Deploy docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'requirements.txt'
+      - '.github/workflows/deploy-docs.yml'
+  workflow_dispatch:
+
+# GitHub Pages 部署所需的权限，缺一不可
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只跑一个部署；已排队的任务不取消，避免线上站点停在半成品状态
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Material 的版权/修订日期取自 git 历史，浅克隆会导致取不到
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 构建站点
+        # --strict：把警告当作错误，链接写错 / nav 里引用了不存在的页面都会让 CI 失败。
+        # 教程中「待撰写」章节的链接已在 mkdocs.yml 的 validation 里降级为 info。
+        run: mkdocs build --strict
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

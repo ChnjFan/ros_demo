@@ -244,7 +244,7 @@ ROS 概述与搭建    →   通信机制(核心)    →   通信进阶
 | [ROS 架构详解](../arch.md) | 解释 | 深入理解 ROS 架构设计 |
 | [ROS 1 通信机制详解](../comm.md) | 参考 | 通信原理与协议栈细节 |
 | [ROS 常用命令速查](../ros_cmd.md) | 参考 | 命令参数快速查阅 |
-| [项目 README](../README.md) | — | 工程说明与快速开始 |
+| [文档首页](../index.md) | — | 工程说明与快速开始 |
 | [Autolabor 原教程](https://www.autolabor.com.cn/book/ROSTutorials/) | — | 原始教程网站 |
 
 ---

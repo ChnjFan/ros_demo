@@ -465,4 +465,4 @@ rosrun hello_world client_p.py 10 20
 
 服务通信适合一问一答的场景。接下来学习参数服务器，用于全局配置管理：
 
-→ **[2.3 参数服务器](../../chapter02/08-parameter.md)**
+→ **[2.3 参数服务器](08-parameter.md)**

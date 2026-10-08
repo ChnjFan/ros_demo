@@ -50,11 +50,15 @@ qtcreator-*
 # Catkin custom files
 CATKIN_IGNORE
 
-# Jekyll / GitHub Pages
+# Jekyll（旧方案，保留以防回退）
 _site/
 .jekyll-cache/
 .jekyll-metadata
 docs/Gemfile.lock
 vendor/
+
+# MkDocs / GitHub Pages
+site/
+.cache/
 
 .vscode

@@ -13,7 +13,7 @@ int main(int argc, char * argv[])
     ros::NodeHandle nh;
     // ros::Subscriber sub = nh.subscribe("/chatter", 10, do_msg_handle);
     ros::Subscriber sub = nh.subscribe<std_msgs::String>(
-        "chatter", 10,
+        "/chatter", 10,
         [&](const std_msgs::String::ConstPtr& msg)
         {
             ROS_INFO("msg: %s", msg->data.c_str());
