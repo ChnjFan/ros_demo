@@ -10,21 +10,15 @@
 
 ### 模型图解
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     服务通信模型                                  │
-│                                                                 │
-│   ┌──────────────┐                      ┌──────────────┐        │
-│   │   Client     │                      │   Server     │        │
-│   │  (客户端)     │                      │  (服务端)     │        │
-│   │              │      请求（Request）   │              │        │
-│   │  "请帮我       │ ═══════════════════▶ │  "收到请求    │        │
-│   │   算一下"     │      响应（Response）  │   正在处理"   │        │
-│   │  "收到结果"   │ ◀═══════════════════ │  "这是结果"   │        │
-│   └──────────────┘                      └──────────────┘        │
-│                                                                 │
-│   特点：同步、双向、一问一答、1:1                                 │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph Model["服务通信模型"]
+        Client["Client<br/>（客户端）<br/>#quot;请帮我算一下#quot;<br/>#quot;收到结果#quot;"]
+        Server["Server<br/>（服务端）<br/>#quot;收到请求正在处理#quot;<br/>#quot;这是结果#quot;"]
+        Client -->|"请求（Request）"| Server
+        Server -->|"响应（Response）"| Client
+        Feature["特点：同步、双向、一问一答、1:1"]
+    end
 ```
 
 ### 核心特点
@@ -61,21 +55,20 @@
 
 一次完整的服务调用经历以下步骤：
 
-```
-Client                       Master                      Server
-  │                            │                            │
-  │                            │ ① registerService(/add)    │
-  │                            │◀───────────────────────────│
-  │                            │   登记：/add 的服务端地址    │
-  │ ② lookupService(/add)      │                            │
-  │ ──────────────────────────▶│                            │
-  │ ◀── 返回 Server URI ───────│                            │
-  │                            │                            │
-  │ ③ XMLRPC 协商 → TCPROS 直连│                            │
-  │ ═══════════════════════════════════════════════════════▶│
-  │        ④ 请求 → ──────────────────────────────────────▶ │
-  │        ◀───────────────────────────── 响应               │
-  │        (客户端阻塞等待响应)                               │
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant M as ROS Master
+    participant S as Server
+
+    S->>M: ① registerService(/add)
+    Note right of M: 登记：/add 的服务端地址
+    C->>M: ② lookupService(/add)
+    M-->>C: 返回 Server URI
+    C->>S: ③ XMLRPC 协商 → TCPROS 直连
+    C->>S: ④ 请求 →
+    S-->>C: 响应
+    Note right of C: (客户端阻塞等待响应)
 ```
 
 1. **Server 注册**：服务端启动时向 Master 注册服务名和地址

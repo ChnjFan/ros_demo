@@ -8,23 +8,20 @@
 
 ROS 1 的通信体系由三大角色和三层协议构成：
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                      ROS 1 通信架构                            │
-│                                                                │
-│   ┌──────────┐   XMLRPC(注册/发现)    ┌──────────┐             │
-│   │Publisher │◀───────────────────▶ │  Master  │             │
-│   └────┬─────┘                        └────▲─────┘             │
-│        │                                   │ XMLRPC            │
-│        │  ① XMLRPC 协商连接                │                   │
-│        ├──────────────────────────────▶  ┌┴─────────┐         │
-│   ┌────▼─────┐   ② XMLRPC 协商连接        │Subscriber│         │
-│   │Publisher │◀──────────────────────────┴──────────┘         │
-│   │ (直连方) │                                                 │
-│   └────┬─────┘                                                 │
-│        │  ③ TCPROS 点对点数据传输（不再经过 Master）            │
-│        └────────────────────────────────────▶ Subscriber      │
-└────────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant Pub as Publisher
+    participant Master as ROS Master
+    participant Sub as Subscriber
+
+    Note over Pub,Sub: ROS 1 通信架构
+    Pub->>Master: XMLRPC(注册/发现)
+    Master-->>Pub: XMLRPC(注册/发现)
+    Master-->>Sub: XMLRPC
+    Pub->>Sub: ① XMLRPC 协商连接
+    Sub->>Pub: ② XMLRPC 协商连接
+    Note over Pub: Publisher（直连方）
+    Pub->>Sub: ③ TCPROS 点对点数据传输（不再经过 Master）
 ```
 
 | 角色 | 职责 |
@@ -55,23 +52,21 @@ ROS 1 的通信体系由三大角色和三层协议构成：
 
 以 Publisher 发布 `/scan`、Subscriber 订阅 `/scan` 为例：
 
-```
-Publisher                     Master                      Subscriber
-   │                            │                             │
-   │ ①registerPublisher(/scan)  │                             │
-   │ ─────────────────────────▶│ 记录：/scan 的发布者地址     │
-   │                            │                             │
-   │                            │ ②publisherUpdate(/scan)     │
-   │                            │   "有人发布了 /scan"        │
-   │                            │ ─────────────────────────▶ │
-   │                            │                             │
-   │ ③requestTopic(/scan)       │                             │
-   │ ◀─────────────────────────│──────────────────────────── │
-   │   (Subscriber 向 Publisher 请求建立连接，协商协议)        │
-   │                            │                             │
-   │ ④建立 TCPROS Socket 直连   │                             │
-   │ ══════════════════════════════════════════════════════▶ │
-   │        ⑤数据持续点对点传输（Master 不参与）               │
+```mermaid
+sequenceDiagram
+    participant Pub as Publisher
+    participant Master as ROS Master
+    participant Sub as Subscriber
+
+    Pub->>Master: ①registerPublisher(/scan)
+    Note right of Master: 记录：/scan 的发布者地址
+    Master-->>Sub: ②publisherUpdate(/scan)<br/>"有人发布了 /scan"
+    Sub->>Pub: ③requestTopic(/scan)
+    Note over Sub,Pub: (Subscriber 向 Publisher 请求建立连接，协商协议)
+    Pub-->>Sub: ④建立 TCPROS Socket 直连
+    loop ⑤数据持续点对点传输（Master 不参与）
+        Pub->>Sub: /scan 消息
+    end
 ```
 
 **详细步骤说明**：
@@ -101,13 +96,18 @@ Publisher                     Master                      Subscriber
 
 roscpp 中 Publisher 和 Subscriber 各有一个缓冲队列，这是**丢消息问题的根源**：
 
-```
-Publisher                        Subscriber
-┌──────────────┐   TCPROS   ┌─────────────────┐
-│ publish()    │ ────────▶ │ 接收队列(默认∞) │ ──▶ 回调函数
-│ 发布队列     │            │ 订阅队列        │    (逐条处理)
-│ (默认0,直发) │            └─────────────────┘
-└──────────────┘
+```mermaid
+flowchart LR
+    Pub["Publisher"]
+    PubQ["publish()<br/>发布队列<br/>(默认0,直发)"]
+    Sub["Subscriber"]
+    SubQ["接收队列(默认∞)<br/>订阅队列"]
+    Cb["回调函数<br/>(逐条处理)"]
+
+    Pub --> PubQ
+    PubQ -->|"TCPROS"| SubQ
+    SubQ --> Cb
+    Sub --- SubQ
 ```
 
 | 队列 | 作用 | 溢出行为 |
@@ -238,21 +238,20 @@ if __name__ == "__main__":
 
 ### 3.3 通信流程
 
-```
-Client                       Master                      Server
-  │                            │                            │
-  │                            │ ①registerService(/add)     │
-  │                            │◀───────────────────────────│
-  │                            │   记录：/add 的服务端 URI    │
-  │ ②lookupService(/add)       │                            │
-  │ ──────────────────────────▶│                            │
-  │ ◀── 返回 Server URI ───────│                            │
-  │                            │                            │
-  │ ③XMLRPC 协商 → TCPROS 直连  │                            │
-  │ ═══════════════════════════════════════════════════════▶│
-  │        ④请求 → ──────────────────────────────────────▶  │
-  │        ◀───────────────────────────── 响应               │
-  │        (客户端阻塞等待响应，超时可配置)                     │
+```mermaid
+sequenceDiagram
+    participant Client as Client
+    participant Master as ROS Master
+    participant Server as Server
+
+    Server->>Master: ①registerService(/add)
+    Note right of Master: 记录：/add 的服务端 URI
+    Client->>Master: ②lookupService(/add)
+    Master-->>Client: 返回 Server URI
+    Client->>Server: ③XMLRPC 协商 → TCPROS 直连
+    Client->>Server: ④请求
+    Server-->>Client: 响应
+    Note over Client,Server: (客户端阻塞等待响应，超时可配置)
 ```
 
 ### 3.4 `.srv` 服务定义文件
@@ -394,8 +393,14 @@ if __name__ == "__main__":
 
 参数服务器是 **Master 内置的全局字典**（键值对存储），通过 XMLRPC 访问：
 
-```
-Node A ──set("robot_name", "turtlesim")──▶ Master 内置字典 ──get──▶ Node B
+```mermaid
+flowchart LR
+    A["Node A"]
+    Master["Master 内置字典"]
+    B["Node B"]
+
+    A -->|"set(#quot;robot_name#quot;, #quot;turtlesim#quot;)"| Master
+    Master -->|"get"| B
 ```
 
 - 数据类型支持：`int`、`float`、`bool`、`string`、`list`、`dict`（YAML 格式）
@@ -529,13 +534,26 @@ rospy.spin()   # rospy 中回调已自动处理，spin 仅阻塞主线程
 
 服务是同步阻塞的——导航到 10 米外的目标点需要 30 秒，期间客户端只能干等，且无法获取进度、无法取消。Action 弥补了这些缺陷：
 
-```
-Action Client                          Action Server
-     │────── goal（目标）──────────────▶│
-     │◀───── feedback（进度反馈，持续）───│   ← 底层：一对 Topic
-     │◀───── result（最终结果）──────────│
-     │────── cancel（取消）────────────▶│   ← 底层：取消 Topic
-     │◀──────── status（状态）──────────│   ← 底层：状态 Topic
+```mermaid
+flowchart TB
+    Service["Service 服务"]
+    S1["同步阻塞<br/>（导航到 10 米外的目标点需要 30 秒，期间客户端只能干等）"]
+    S2["无法获取进度"]
+    S3["无法取消"]
+
+    Service --> S1
+    Service --> S2
+    Service --> S3
+
+    AC["Action Client"]
+    AS["Action Server"]
+
+    Service -.->|"Action 弥补了这些缺陷"| AC
+    AC -->|"goal（目标）"| AS
+    AS -->|"feedback（进度反馈，持续）<br/>底层：一对 Topic"| AC
+    AS -->|"result（最终结果）"| AC
+    AC -->|"cancel（取消）<br/>底层：取消 Topic"| AS
+    AS -->|"status（状态）<br/>底层：状态 Topic"| AC
 ```
 
 ### 6.2 `.action` 定义文件
@@ -678,23 +696,25 @@ rosrun hello_world listener /chatter:=/talker_data
 
 ## 九、四种通信机制选型总结
 
-```
-                     需要通信
-                        │
-            ┌───────────┴───────────┐
-            │                       │
-        数据是持续流？            数据是请求-响应？
-            │                       │
-            ▼                       ▼
-        Topic                  需要进度反馈/取消？
-     （传感器、控制指令）           │
-                          ┌───────┴────────┐
-                          │ 否              │ 是
-                          ▼                ▼
-                      Service           Action
-                    （查询、设置）     （导航、抓取）
+```mermaid
+flowchart TD
+    Start{"需要通信"}
+    Q1{"数据是持续流？"}
+    Q2{"数据是请求-响应？"}
+    Q3{"需要进度反馈/取消？"}
 
-    配置数据（低频读写）→ Parameter Server
+    Topic["Topic<br/>（传感器、控制指令）"]
+    Service["Service<br/>（查询、设置）"]
+    Action["Action<br/>（导航、抓取）"]
+    Param["Parameter Server"]
+
+    Start --> Q1
+    Start --> Q2
+    Q1 -->|"是"| Topic
+    Q2 -->|"是"| Q3
+    Q3 -->|"否"| Service
+    Q3 -->|"是"| Action
+    Start -->|"配置数据（低频读写）"| Param
 ```
 
 | 判断依据 | 选择 |

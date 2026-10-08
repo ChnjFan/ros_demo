@@ -81,13 +81,13 @@ sequenceDiagram
 
 ```bash
 cd ~/ros_demo/src
-catkin_create_pkg hello_world roscpp rospy std_msgs
+catkin_create_pkg plumbing_pub_sub roscpp rospy std_msgs
 cd ~/ros_demo
 ```
 
-### 编写发布者节点（Talker）
+### 编写发布者节点
 
-在 `hello_world/src/` 下创建 `talker.cpp`：
+在 `plumbing_pub_sub/src/` 下创建 `demo_pub.cpp`：
 
 ```cpp
 #include "ros/ros.h"
@@ -134,27 +134,21 @@ int main(int argc, char *argv[])
 }
 ```
 
-**代码逐行解释：**
+**关键代码解释：**
 
-第 10 行 `ros::init(argc, argv, "talker")` 初始化 ROS 节点，注册名称为 `"talker"`。注意这个名称会出现在 `rosnode list` 的输出中。
+`nh.advertise<std_msgs::String>("/chatter", 10)` 创建一个发布者对象。模板参数 `std_msgs::String` 指定消息类型，第一个参数 `"/chatter"` 是话题名，第二个参数 `10` 是发布队列长度。队列长度决定了在消息发送来不及的情况下最多缓存多少条消息，超过则丢弃最旧的消息。
 
-第 13 行 `ros::NodeHandle nh` 创建节点句柄，它是节点与 ROS 系统交互的接口。后续创建发布者、订阅者、调用服务都要通过它。
+`ros::Rate rate(10)` 创建一个频率控制对象，设定为 10Hz（每秒 10 次）。配合 `rate.sleep()` 使用，可以精确控制循环频率。
 
-第 17 行 `nh.advertise<std_msgs::String>("/chatter", 10)` 创建一个发布者对象。模板参数 `std_msgs::String` 指定消息类型，第一个参数 `"/chatter"` 是话题名，第二个参数 `10` 是发布队列长度。队列长度决定了在消息发送来不及的情况下最多缓存多少条消息，超过则丢弃最旧的消息。
+`while (ros::ok())` 是 ROS 节点的标准主循环条件。当用户按下 Ctrl+C、调用 `rosnode kill`、或 `ros::shutdown()` 被调用时，`ros::ok()` 返回 false，循环退出。
 
-第 20 行 `ros::Rate rate(10)` 创建一个频率控制对象，设定为 10Hz（每秒 10 次）。配合 `rate.sleep()` 使用，可以精确控制循环频率。
+`pub.publish(msg)` 将消息发布到 `/chatter` 话题。所有订阅了该话题的订阅者都会收到这条消息。
 
-第 23 行 `while (ros::ok())` 是 ROS 节点的标准主循环条件。当用户按下 Ctrl+C、调用 `rosnode kill`、或 `ros::shutdown()` 被调用时，`ros::ok()` 返回 false，循环退出。
+`rate.sleep()` 按设定的频率休眠，确保循环以 10Hz 运行。它会自动计算本次循环已消耗的时间，只休眠剩余时间。
 
-第 34 行 `pub.publish(msg)` 将消息发布到 `/chatter` 话题。所有订阅了该话题的订阅者都会收到这条消息。
+### 编写订阅者节点
 
-第 37 行 `ROS_INFO("发布: %s", msg.data.c_str())` 输出日志，方便调试。
-
-第 40 行 `rate.sleep()` 按设定的频率休眠，确保循环以 10Hz 运行。它会自动计算本次循环已消耗的时间，只休眠剩余时间。
-
-### 编写订阅者节点（Listener）
-
-在 `hello_world/src/` 下创建 `listener.cpp`：
+在 `plumbing_pub_sub/src/` 下创建 `demo_sub.cpp`：
 
 ```cpp
 #include "ros/ros.h"
@@ -187,24 +181,24 @@ int main(int argc, char *argv[])
 
 **代码逐行解释：**
 
-第 4-8 行定义了回调函数 `chatterCallback`，每当订阅者收到一条消息，ROS 就会自动调用这个函数。参数 `const std_msgs::String::ConstPtr& msg` 是指向常量消息的智能指针，使用引用传递避免拷贝，ConstPtr 保证不会修改消息内容。
+定义回调函数 `chatterCallback`，每当订阅者收到一条消息，ROS 就会自动调用这个函数。参数 `const std_msgs::String::ConstPtr& msg` 是指向常量消息的智能指针，使用引用传递避免拷贝，ConstPtr 保证不会修改消息内容。
 
-第 18 行 `nh.subscribe("/chatter", 10, chatterCallback)` 创建订阅者。模板参数自动推断消息类型，第一个参数是话题名，第二个参数是订阅队列长度，第三个参数是回调函数的指针。
+`nh.subscribe("/chatter", 10, chatterCallback)` 创建订阅者。模板参数自动推断消息类型，第一个参数是话题名，第二个参数是订阅队列长度，第三个参数是回调函数的指针。
 
-第 21 行 `ros::spin()` 进入阻塞循环，不断检查是否有新消息到达，有则调用回调函数。这个函数不会返回，直到节点被关闭。
+`ros::spin()` 进入阻塞循环，不断检查是否有新消息到达，有则调用回调函数。这个函数不会返回，直到节点被关闭。
 
 > ⚠️ **常见错误**：忘记调用 `ros::spin()` 或 `ros::spinOnce()`，导致回调函数永远不会被触发，订阅者形同虚设。
 
 ### 配置编译规则
 
-编辑 `hello_world/CMakeLists.txt`，在文件末尾添加：
+编辑 `plumbing_pub_sub/CMakeLists.txt`，在文件末尾添加：
 
 ```cmake
-add_executable(talker src/talker.cpp)
-target_link_libraries(talker ${catkin_LIBRARIES})
+add_executable(pub_node src/demo_pub.cpp)
+target_link_libraries(pub_node ${catkin_LIBRARIES})
 
-add_executable(listener src/listener.cpp)
-target_link_libraries(listener ${catkin_LIBRARIES})
+add_executable(sub_node src/demo_sub.cpp)
+target_link_libraries(sub_node ${catkin_LIBRARIES})
 ```
 
 ### 编译与运行
@@ -221,10 +215,10 @@ source devel/setup.bash
 roscore
 
 # 终端 2：运行发布者
-rosrun hello_world talker
+rosrun plumbing_pub_sub pub_node
 
 # 终端 3：运行订阅者
-rosrun hello_world listener
+rosrun plumbing_pub_sub sub_node
 ```
 
 **运行效果：**
@@ -256,10 +250,10 @@ Python 实现与 C++ 逻辑完全相同，只是语法不同。
 ### 创建 Python 脚本
 
 ```bash
-mkdir -p ~/ros_demo/src/hello_world/scripts
+mkdir -p ~/ros_demo/src/plumbing_pub_sub/scripts
 ```
 
-在 `hello_world/scripts/` 下创建 `talker_p.py`：
+在 `plumbing_pub_sub/scripts/` 下创建 `talker_p.py`：
 
 ```python
 #!/usr/bin/env python
@@ -295,7 +289,7 @@ if __name__ == "__main__":
         count += 1
 ```
 
-在 `hello_world/scripts/` 下创建 `listener_p.py`：
+在 `plumbing_pub_sub/scripts/` 下创建 `listener_p.py`：
 
 ```python
 #!/usr/bin/env python
@@ -322,12 +316,12 @@ if __name__ == "__main__":
 
 ```bash
 # 添加可执行权限（Python 必须！）
-chmod +x ~/ros_demo/src/hello_world/scripts/talker_p.py
-chmod +x ~/ros_demo/src/hello_world/scripts/listener_p.py
+chmod +x ~/ros_demo/src/plumbing_pub_sub/scripts/talker_p.py
+chmod +x ~/ros_demo/src/plumbing_pub_sub/scripts/listener_p.py
 
 # Python 节点不需要编译，直接运行
-rosrun hello_world talker_p.py
-rosrun hello_world listener_p.py
+rosrun plumbing_pub_sub talker_p.py
+rosrun plumbing_pub_sub listener_p.py
 ```
 
 > 💡 **C++ vs Python 对比**：
@@ -344,8 +338,8 @@ rosrun hello_world listener_p.py
 ### 步骤 1：定义 msg 文件
 
 ```bash
-mkdir -p ~/ros_demo/src/hello_world/msg
-cd ~/ros_demo/src/hello_world/msg
+mkdir -p ~/ros_demo/src/plumbing_pub_sub/msg
+cd ~/ros_demo/src/plumbing_pub_sub/msg
 touch Person.msg
 ```
 
@@ -364,7 +358,7 @@ float64 height
 
 ### 步骤 2：配置 package.xml
 
-编辑 `hello_world/package.xml`，添加消息生成和运行时依赖：
+编辑 `plumbing_pub_sub/package.xml`，添加消息生成和运行时依赖：
 
 ```xml
 <build_depend>message_generation</build_depend>
@@ -377,7 +371,7 @@ float64 height
 
 ### 步骤 3：配置 CMakeLists.txt
 
-编辑 `hello_world/CMakeLists.txt`，做三处修改：
+编辑 `plumbing_pub_sub/CMakeLists.txt`，做三处修改：
 
 **修改 1**：在 `find_package` 中添加 `message_generation`：
 
@@ -425,19 +419,19 @@ catkin_make
 
 编译成功后，会自动生成：
 
-- C++ 头文件：`devel/include/hello_world/Person.h`
-- Python 模块：`devel/lib/python3/dist-packages/hello_world/msg/`
+- C++ 头文件：`devel/include/plumbing_pub_sub/Person.h`
+- Python 模块：`devel/lib/python3/dist-packages/plumbing_pub_sub/msg/`
 
 ### 步骤 5：验证自定义消息
 
 ```bash
-rosmsg show hello_world/Person
+rosmsg show plumbing_pub_sub/Person
 ```
 
 输出：
 
 ```
-[string name
+string name
 uint8 age
 float64 height
 ```
@@ -448,11 +442,11 @@ float64 height
 
 ### 编写发布者
 
-在 `hello_world/src/` 下创建 `person_talker.cpp`：
+在 `plumbing_pub_sub/src/` 下创建 `person_talker.cpp`：
 
 ```cpp
 #include "ros/ros.h"
-#include "hello_world/Person.h"  // 自定义消息头文件
+#include "plumbing_pub_sub/Person.h"  // 自定义消息头文件
 
 int main(int argc, char *argv[])
 {
@@ -460,14 +454,14 @@ int main(int argc, char *argv[])
     ros::NodeHandle nh;
 
     // 使用自定义消息类型创建发布者
-    ros::Publisher pub = nh.advertise<hello_world::Person>("/person_info", 10);
+    ros::Publisher pub = nh.advertise<plumbing_pub_sub::Person>("/person_info", 10);
 
     ros::Rate rate(1);
 
     int count = 0;
     while (ros::ok())
     {
-        hello_world::Person msg;
+        plumbing_pub_sub::Person msg;
         msg.name = "张三";
         msg.age = 20 + count;
         msg.height = 1.75;
@@ -486,13 +480,13 @@ int main(int argc, char *argv[])
 
 ### 编写订阅者
 
-在 `hello_world/src/` 下创建 `person_listener.cpp`：
+在 `plumbing_pub_sub/src/` 下创建 `person_listener.cpp`：
 
 ```cpp
 #include "ros/ros.h"
-#include "hello_world/Person.h"
+#include "plumbing_pub_sub/Person.h"
 
-void personCallback(const hello_world::Person::ConstPtr& msg)
+void personCallback(const plumbing_pub_sub::Person::ConstPtr& msg)
 {
     ROS_INFO("收到: 姓名=%s, 年龄=%d, 身高=%.2f",
              msg->name.c_str(), msg->age, msg->height);
@@ -530,8 +524,8 @@ catkin_make
 source devel/setup.bash
 
 roscore
-rosrun hello_world person_talker
-rosrun hello_world person_listener
+rosrun plumbing_pub_sub person_talker
+rosrun plumbing_pub_sub person_listener
 ```
 
 ---
@@ -540,14 +534,14 @@ rosrun hello_world person_listener
 
 ### 编写发布者
 
-在 `hello_world/scripts/` 下创建 `person_talker_p.py`：
+在 `plumbing_pub_sub/scripts/` 下创建 `person_talker_p.py`：
 
 ```python
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import rospy
-from hello_world.msg import Person  # 导入自定义消息
+from plumbing_pub_sub.msg import Person  # 导入自定义消息
 
 if __name__ == "__main__":
     rospy.init_node("person_talker_p")
@@ -572,14 +566,14 @@ if __name__ == "__main__":
 
 ### 编写订阅者
 
-在 `hello_world/scripts/` 下创建 `person_listener_p.py`：
+在 `plumbing_pub_sub/scripts/` 下创建 `person_listener_p.py`：
 
 ```python
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import rospy
-from hello_world.msg import Person
+from plumbing_pub_sub.msg import Person
 
 def personCallback(msg):
     rospy.loginfo("收到: 姓名=%s, 年龄=%d, 身高=%.2f",
@@ -594,12 +588,12 @@ if __name__ == "__main__":
 ### 添加权限并运行
 
 ```bash
-chmod +x ~/ros_demo/src/hello_world/scripts/person_talker_p.py
-chmod +x ~/ros_demo/src/hello_world/scripts/person_listener_p.py
+chmod +x ~/ros_demo/src/plumbing_pub_sub/scripts/person_talker_p.py
+chmod +x ~/ros_demo/src/plumbing_pub_sub/scripts/person_listener_p.py
 
 # 不需要编译，直接运行
-rosrun hello_world person_talker_p.py
-rosrun hello_world person_listener_p.py
+rosrun plumbing_pub_sub person_talker_p.py
+rosrun plumbing_pub_sub person_listener_p.py
 ```
 
 ---

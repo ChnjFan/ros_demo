@@ -6,29 +6,35 @@ ROS 本质是一个**分布式计算框架**。它的设计哲学是：
 
 > **将机器人的复杂功能拆分成大量独立的"节点"，节点之间通过标准化的"通信接口"进行协作。**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        ROS 架构全景图                            │
-│                                                                 │
-│  ┌──────────┐     ┌──────────┐     ┌──────────┐                │
-│  │ 感知层    │     │ 决策层    │     │ 执行层    │                │
-│  │ 摄像头节点 │────▶│ SLAM节点  │────▶│ 电机节点  │                │
-│  │ 雷达节点   │     │ 规划节点   │     │ 舵机节点  │                │
-│  └────┬─────┘     └────┬─────┘     └────┬─────┘                │
-│       │                │                │                       │
-│       └────────────────┼────────────────┘                       │
-│                        │                                        │
-│              ┌─────────▼─────────┐                              │
-│              │   通信中间件层      │                              │
-│              │  Topic/Service/    │                              │
-│              │  Action/Parameter  │                              │
-│              └─────────┬─────────┘                              │
-│                        │                                        │
-│              ┌─────────▼─────────┐                              │
-│              │   Master（ROS 1）  │                              │
-│              │   DDS（ROS 2）     │                              │
-│              └───────────────────┘                              │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Arch["ROS 架构全景图"]
+        subgraph L1["感知层"]
+            Cam["摄像头节点"]
+            Lidar["雷达节点"]
+        end
+
+        subgraph L2["决策层"]
+            Slam["SLAM节点"]
+            Plan["规划节点"]
+        end
+
+        subgraph L3["执行层"]
+            Motor["电机节点"]
+            Servo["舵机节点"]
+        end
+
+        L1 --> L2
+        L2 --> L3
+
+        MW["通信中间件层<br/>Topic/Service/<br/>Action/Parameter"]
+        Master["Master（ROS 1）<br/>DDS（ROS 2）"]
+
+        L1 --> MW
+        L2 --> MW
+        L3 --> MW
+        MW --> Master
+    end
 ```
 
 ---
@@ -82,10 +88,16 @@ ROS 提供了 **四种通信方式**，覆盖所有机器人应用场景：
 
 #### (1) Topic（话题）— 发布/订阅模型
 
-```
-  Publisher ──────/scan────────▶  Subscriber1
-      │           /scan          Subscriber2
-      └──────────/scan────────▶  Subscriber3
+```mermaid
+flowchart LR
+    Pub["Publisher"]
+    Sub1["Subscriber1"]
+    Sub2["Subscriber2"]
+    Sub3["Subscriber3"]
+
+    Pub -->|"/scan"| Sub1
+    Pub -->|"/scan"| Sub2
+    Pub -->|"/scan"| Sub3
 ```
 
 - **异步、单向、流式数据**
@@ -93,21 +105,29 @@ ROS 提供了 **四种通信方式**，覆盖所有机器人应用场景：
 - 典型应用：传感器数据流（激光雷达、摄像头、里程计）
 
 **工作流程：**
-```
-Publisher 注册话题 ──▶ Master 记录 ──▶ Subscriber 查询话题
-                                        │
-                                        ▼
-                              Publisher 与 Subscriber 建立直连
-                                        │
-                                        ▼
-                              TCPROS / UDPROS 传输数据
+```mermaid
+flowchart LR
+    Reg["Publisher 注册话题"]
+    Rec["Master 记录"]
+    Query["Subscriber 查询话题"]
+    Conn["Publisher 与 Subscriber 建立直连"]
+    Trans["TCPROS / UDPROS 传输数据"]
+
+    Reg --> Rec
+    Rec --> Query
+    Query --> Conn
+    Conn --> Trans
 ```
 
 #### (2) Service（服务）— 请求/响应模型
 
-```
-  Client ────请求────▶  Service Server
-         ◀──响应────
+```mermaid
+flowchart LR
+    Client["Client"]
+    Server["Service Server"]
+
+    Client -->|"请求"| Server
+    Server -->|"响应"| Client
 ```
 
 - **同步、双向、一问一答**
@@ -116,11 +136,15 @@ Publisher 注册话题 ──▶ Master 记录 ──▶ Subscriber 查询话题
 
 #### (3) Action（动作）— 带反馈的长任务模型
 
-```
-  Client ────Goal────▶  Action Server
-         ◀──Feedback───  (持续反馈)
-         ◀──Result────  (最终结果)
-         ───Cancel───▶  (可取消)
+```mermaid
+flowchart LR
+    Client["Client"]
+    Server["Action Server"]
+
+    Client -->|"Goal"| Server
+    Server -->|"Feedback（持续反馈）"| Client
+    Server -->|"Result（最终结果）"| Client
+    Client -->|"Cancel（可取消）"| Server
 ```
 
 - **异步、带进度反馈、可取消**
@@ -129,8 +153,14 @@ Publisher 注册话题 ──▶ Master 记录 ──▶ Subscriber 查询话题
 
 #### (4) Parameter（参数）— 全局键值存储
 
-```
-  Node A ──写入──▶  Parameter Server  ◀──读取── Node B
+```mermaid
+flowchart LR
+    NodeA["Node A"]
+    Param["Parameter Server"]
+    NodeB["Node B"]
+
+    NodeA -->|"写入"| Param
+    NodeB -->|"读取"| Param
 ```
 
 - 集中管理配置参数（如机器人尺寸、PID 系数）
@@ -151,22 +181,18 @@ Publisher 注册话题 ──▶ Master 记录 ──▶ Subscriber 查询话题
 
 ### 2.3 ROS Master（主控）— 节点发现中心
 
-```
-┌─────────────────────────────────────────────┐
-│                ROS Master                    │
-│  ┌─────────────────────────────────────┐    │
-│  │  注册表                             │    │
-│  │  ├── 话题列表：/scan → [pub_addr]   │    │
-│  │  ├── 服务列表：/set_map → [srv_addr]│    │
-│  │  ├── 节点列表：/camera_node         │    │
-│  │  └── 参数列表：/max_speed = 1.0     │    │
-│  └─────────────────────────────────────┘    │
-│                                             │
-│  Publisher 说："我在 /scan 上发数据"          │
-│  Subscriber 问："谁在发 /scan？"              │
-│  Master 回答："Publisher 在 192.168.1.2:3344" │
-│  → 两者建立直连（P2P），Master 退出           │
-└─────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant Pub as Publisher
+    participant Master as ROS Master
+    participant Sub as Subscriber
+
+    Note over Master: 注册表<br/>├── 话题列表：/scan → [pub_addr]<br/>├── 服务列表：/set_map → [srv_addr]<br/>├── 节点列表：/camera_node<br/>└── 参数列表：/max_speed = 1.0
+
+    Pub->>Master: 说："我在 /scan 上发数据"
+    Sub->>Master: 问："谁在发 /scan？"
+    Master-->>Sub: 回答："Publisher 在 192.168.1.2:3344"
+    Note over Pub,Sub: → 两者建立直连（P2P），Master 退出
 ```
 
 **重要理解**：Master 只负责**初始发现**，实际数据传输是**点对点直连**，不经过 Master。
@@ -306,37 +332,28 @@ roslaunch hello_world start_turtle.launch   # 启动系统
 
 一个完整机器人系统的 ROS 节点图：
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        自主移动机器人 ROS 架构                        │
-│                                                                     │
-│  ┌──────────┐    /scan    ┌──────────┐   /map    ┌──────────┐      │
-│  │ 激光雷达  │────────────▶│  SLAM    │──────────▶│  地图    │      │
-│  │ 驱动节点  │             │  节点    │           │  节点    │      │
-│  └──────────┘             └──────────┘           └────┬─────┘      │
-│                                                        │            │
-│  ┌──────────┐   /odom    ┌──────────┐                 │            │
-│  │ IMU/里程计│───────────▶│  定位    │                 │            │
-│  │ 驱动节点  │            │  节点    │                 │            │
-│  └──────────┘            └──────────┘                 │            │
-│       │                                              │            │
-│       │         ┌──────────┐    /plan                │            │
-│       └────────▶│  路径规划 │◀───────────────────────┘            │
-│                 │  节点    │                                       │
-│       ┌────────▶│          │───▶ /cmd_vel                         │
-│       │         └──────────┘      │                                │
-│       │                           ▼                                │
-│  ┌────┴─────┐              ┌──────────┐                           │
-│  │  避障    │              │  运动控制 │                           │
-│  │  节点    │              │  节点    │                           │
-│  └──────────┘              └────┬─────┘                           │
-│                                  │                                  │
-│                                  ▼                                  │
-│                            ┌──────────┐                             │
-│                            │  电机    │                             │
-│                            │  驱动    │                             │
-│                            └──────────┘                             │
-└─────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Robot["自主移动机器人 ROS 架构"]
+        Lidar["激光雷达驱动节点"]
+        Slam["SLAM节点"]
+        MapNode["地图节点"]
+        Odom["IMU/里程计驱动节点"]
+        Loc["定位节点"]
+        Plan["路径规划节点"]
+        Avoid["避障节点"]
+        Ctrl["运动控制节点"]
+        Motor["电机驱动"]
+
+        Lidar -->|"/scan"| Slam
+        Slam -->|"/map"| MapNode
+        Odom -->|"/odom"| Loc
+        MapNode -->|"/plan"| Plan
+        Odom --> Plan
+        Avoid --> Plan
+        Plan -->|"/cmd_vel"| Ctrl
+        Ctrl --> Motor
+    end
 ```
 
 ---

@@ -58,3 +58,24 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+      # 关键：deploy-pages 成功 ≠ 线上就是本次的产物。
+      # 如果 Settings → Pages 的 Source 还停在 "Deploy from a branch"，
+      # GitHub 会同时跑内置的 Jekyll 构建（workflow 名 "pages build and deployment"），
+      # 它后完成、会把 MkDocs 产物整个覆盖掉，而本工作流依然是一片绿。
+      # 这里用 MkDocs 专有路径做冒烟测试，把这种静默失败变成明确的红色报错。
+      - name: 冒烟测试：确认线上就是本次构建的 MkDocs 产物
+        run: |
+          base="${{ steps.deployment.outputs.page_url }}"
+          probe="${base}search/search_index.json"
+          for attempt in 1 2 3 4 5; do
+            sleep 10
+            code=$(curl -s -o /dev/null -w '%{http_code}' -L "$probe" || echo 000)
+            echo "第 $attempt 次探测：$probe -> HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "✅ 线上已是 MkDocs 产物"
+              exit 0
+            fi
+          done
+          echo "::error title=线上不是 MkDocs 产物::${probe} 始终不是 200。若线上仍是 Jekyll 生成的 *.html 页面，请到 Settings → Pages → Build and deployment → Source 选择 'GitHub Actions'，否则内置 Jekyll 构建会一直覆盖本工作流的部署，然后重新运行本工作流。"
+          exit 1

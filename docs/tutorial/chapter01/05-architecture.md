@@ -297,23 +297,19 @@ rosservice list [Tab][Tab]       # 列出所有服务
 
 ### 计算图的核心概念
 
-```
-                      ┌──────────────┐
-                      │  ROS Master  │  ← 节点注册与发现中心
-                      └──────┬───────┘
-                             │
-          ┌──────────────────┼─────────────────┐
-          │                  │                 │
-    ┌─────▼─────┐     ┌──────▼─────┐      ┌────▼────┐
-    │ Node A    │     │    Node B  │      │ Node C  │
-    │(Publisher)│     │(Subscriber)│      │(Server) │
-    └─────┬─────┘     └──────┬─────┘      └────┬────┘
-          │                  │                 │
-          └──── /chatter ────┘                 │
-                                               │
-                                   ┌───────────▼───────────┐
-                                   │        Client         │
-                                   └───────────────────────┘
+```mermaid
+flowchart TB
+    Master["ROS Master<br/>节点注册与发现中心"]
+    NodeA["Node A<br/>（Publisher）"]
+    NodeB["Node B<br/>（Subscriber）"]
+    NodeC["Node C<br/>（Server）"]
+    Client["Client"]
+
+    Master --> NodeA
+    Master --> NodeB
+    Master --> NodeC
+    NodeA -->|"/chatter"| NodeB
+    NodeC --> Client
 ```
 
 | 计算图概念 | 说明 | 类比 |
@@ -330,28 +326,23 @@ rosservice list [Tab][Tab]       # 列出所有服务
 
 节点是 ROS 中最基本的计算单元。一个机器人系统通常由大量节点组成：
 
-```
-┌─────────────────────────────────────────────────────┐
-│              Robot System Node Graph                │
-│                                                     │
-│  ┌────────────┐   /scan    ┌──────────┐             │
-│  │Radar driver│───────────>│  SLAM    │─── /map     │
-│  └────────────┘            └──────────┘             │
-│                                                     │
-│  ┌──────────┐   /odom    ┌───────────┐              │
-│  │ odometer │──────────> │Positioning│              │
-│  └──────────┘            └───────────┘              │
-│                               │                     │
-│                               ▼                     │
-│                        ┌─────────────┐              │
-│                        │Path Planning│── /cmd_vel   │
-│                        └──────┬──────┘              │
-│                               │                     │
-│                               ▼                     │
-│                       ┌──────────────┐              │
-│                       │Motion Control│              │
-│                       └──────────────┘              │
-└─────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph RobotSys["Robot System Node Graph"]
+        Radar["Radar driver"]
+        SLAM["SLAM"]
+        Map["地图"]
+        Odom["odometer"]
+        Pos["Positioning"]
+        Plan["Path Planning"]
+        Motion["Motion Control"]
+
+        Radar -->|"/scan"| SLAM
+        SLAM -->|"/map"| Map
+        Odom -->|"/odom"| Pos
+        Pos --> Plan
+        Plan -->|"/cmd_vel"| Motion
+    end
 ```
 
 **节点的特点：**
@@ -366,10 +357,14 @@ rosservice list [Tab][Tab]       # 列出所有服务
 
 **话题（Topic）**是节点之间传输数据的**通道名称**，**消息（Message）**是传输的**数据本身**。
 
-```
-Publisher ───── /scan (sensor_msgs/LaserScan) ─────▶ Subscriber
-Publisher ───── /cmd_vel (geometry_msgs/Twist) ───▶ Subscriber
-Publisher ───── /image_raw (sensor_msgs/Image) ───▶ Subscriber
+```mermaid
+flowchart LR
+    Pub["Publisher"]
+    Sub["Subscriber"]
+
+    Pub -->|"/scan (sensor_msgs/LaserScan)"| Sub
+    Pub -->|"/cmd_vel (geometry_msgs/Twist)"| Sub
+    Pub -->|"/image_raw (sensor_msgs/Image)"| Sub
 ```
 
 - 话题名是一个字符串（如 `/scan`、`/cmd_vel`）
@@ -381,9 +376,13 @@ Publisher ───── /image_raw (sensor_msgs/Image) ───▶ Subscriber
 
 服务用于**同步请求/响应**场景：
 
-```
-Client ─────── /spawn (turtlesim/Spawn) ──────▶ Server
-Client ◀────────────────────────────────────── Server
+```mermaid
+flowchart LR
+    Client["Client"]
+    Server["Server"]
+
+    Client -->|"/spawn (turtlesim/Spawn)"| Server
+    Server -->|"响应"| Client
 ```
 
 - 服务名是一个字符串（如 `/spawn`）
@@ -419,11 +418,16 @@ sequenceDiagram
 
 参数服务器是 Master 内置的**全局字典**，用于存储配置参数：
 
-```
-Node A ─── set("/max_speed", 1.0) ──▶ Parameter Server ◀── Node B
-                                         │
-                                         ▼
-                              get("/max_speed") → 1.0
+```mermaid
+flowchart LR
+    NodeA["Node A"]
+    PS["Parameter Server"]
+    NodeB["Node B"]
+    GetResult["get(#quot;/max_speed#quot;) → 1.0"]
+
+    NodeA -->|"set(#quot;/max_speed#quot;, 1.0)"| PS
+    NodeB --> PS
+    PS --> GetResult
 ```
 
 - 支持的数据类型：`int`、`float`、`bool`、`string`、`list`、`dict`
