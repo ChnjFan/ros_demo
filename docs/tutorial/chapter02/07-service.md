@@ -6,7 +6,7 @@
 
 ## 2.2.1 服务通信理论模型
 
-服务通信是 ROS 中另一种重要的通信方式，采用**请求/响应（Request/Response）**模型。
+服务通信是 ROS 中另一种重要的通信方式，采用**请求/响应**（Request/Response）模型。
 
 ### 模型图解
 
@@ -17,7 +17,6 @@ flowchart LR
         Server["Server<br/>（服务端）<br/>#quot;收到请求正在处理#quot;<br/>#quot;这是结果#quot;"]
         Client -->|"请求（Request）"| Server
         Server -->|"响应（Response）"| Client
-        Feature["特点：同步、双向、一问一答、1:1"]
     end
 ```
 
