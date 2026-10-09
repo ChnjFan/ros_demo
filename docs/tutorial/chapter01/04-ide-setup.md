@@ -317,30 +317,3 @@ Checking log disk usage for logging purposes.
 | C/C++ 插件 | VS Code 扩展面板安装 | C++ 智能提示和调试 |
 | Python 插件 | VS Code 扩展面板安装 | Python 智能提示和调试 |
 
----
-
-## 理解检查
-
-学完本节后，你应该能够：
-
-- ✅ 安装并使用 Terminator 分屏终端
-- ✅ 安装 VS Code 和 ROS 相关插件
-- ✅ 配置 VS Code 的 C++ 和 Python 智能提示
-- ✅ 编写 launch 文件启动多个节点
-- ✅ 理解 launch 文件中 `<node>` 标签的常用属性
-
----
-
-## 🔧 动手练习
-
-1. **Terminator 分屏**：用 Terminator 分屏，分别运行 roscore、talker、listener
-2. **VS Code 打开项目**：用 VS Code 打开 `~/ros_demo`，编辑一个节点代码
-3. **launch 文件练习**：编写一个 launch 文件，同时启动 talker 和 listener，并设置不同的命名空间
-
----
-
-## 下一节
-
-开发环境已就绪，接下来深入了解 ROS 的架构设计：
-
-→ **[1.5 ROS 架构](05-architecture.md)**

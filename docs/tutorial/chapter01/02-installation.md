@@ -237,21 +237,3 @@ started core service [/rosout]
 | 配置环境 | `echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc` | 自动加载 ROS 环境 |
 | 验证安装 | `roscore` | 启动 ROS Master |
 
----
-
-## 理解检查
-
-学完本节后，你应该能够：
-
-- ✅ 在一台虚拟机中安装 Ubuntu 20.04 和 ROS Noetic
-- ✅ 成功运行 `roscore` 并理解它的作用
-- ✅ 使用 `echo $ROS_DISTRO` 验证环境变量
-- ✅ 遇到 `command not found` 时知道如何排查
-
----
-
-## 下一节
-
-环境已就绪，接下来我们写第一个 ROS 程序——HelloWorld：
-
-→ **[1.3 ROS 快速体验](03-helloworld.md)**

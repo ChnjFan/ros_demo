@@ -6,7 +6,7 @@
 
 ## 2.1.1 话题通信理论模型
 
-话题通信是 ROS 中**最常用、最基础**的通信方式，采用**发布/订阅（Publish/Subscribe）**模型。
+话题通信是 ROS 中**最常用、最基础**的通信方式，采用**发布/订阅**（Publish/Subscribe）模型。
 
 ### 模型图解
 
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 }
 ```
 
-**代码逐行解释：**
+**关键代码解释：**
 
 定义回调函数 `chatterCallback`，每当订阅者收到一条消息，ROS 就会自动调用这个函数。参数 `const std_msgs::String::ConstPtr& msg` 是指向常量消息的智能指针，使用引用传递避免拷贝，ConstPtr 保证不会修改消息内容。
 
@@ -610,32 +610,3 @@ rosrun plumbing_pub_sub person_listener_p.py
 | **自定义 msg 流程** | 定义 .msg 文件 → 配置 package.xml → 配置 CMakeLists.txt → 编译 |
 | **自定义消息依赖** | `message_generation`（编译时）+ `message_runtime`（运行时） |
 
----
-
-## 理解检查
-
-学完本节后，你应该能够：
-
-- ✅ 描述话题通信的 5 步连接建立流程
-- ✅ 解释为什么 Master 挂掉后已建立的连接仍能工作
-- ✅ 编写 C++ 版本的发布者和订阅者节点
-- ✅ 编写 Python 版本的发布者和订阅者节点
-- ✅ 定义自定义消息类型并在节点中使用
-- ✅ 理解 `ros::spin()` 和回调函数的关系
-
----
-
-## 🔧 动手练习
-
-1. **修改发布频率**：将 Talker 的频率改为 1Hz 和 50Hz，观察 Subscriber 的输出变化
-2. **多订阅者实验**：启动一个 Talker，启动两个 Listener，观察是否都能收到消息
-3. **多发布者实验**：启动两个 Talker（话题名相同），启动一个 Listener，观察输出
-4. **自定义消息扩展**：在 `Person.msg` 中添加 `string email` 和 `bool is_student` 字段，重新编译并使用
-
----
-
-## 下一节
-
-话题通信是 ROS 最常用的通信方式。接下来学习另一种重要的通信机制——服务通信：
-
-→ **[2.2 服务通信](07-service.md)**

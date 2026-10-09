@@ -419,30 +419,3 @@ ros_demo/                           ← catkin 工作空间
 | 运行节点 | `rosrun hello_world hello_node` | 启动单个节点 |
 | 批量启动 | `roslaunch hello_world start_hello.launch` | 启动多个节点 |
 
----
-
-## 理解检查
-
-学完本节后，你应该能够：
-
-- ✅ 解释 catkin 工作空间的目录结构
-- ✅ 区分 `rosrun` 和 `roslaunch` 的用途
-- ✅ 编写一个最简单的 C++ 和 Python 节点
-- ✅ 理解 `ros::init` / `rospy.init_node` 的作用
-- ✅ 使用 `rosnode list` 查看运行中的节点
-
----
-
-## 🔧 动手练习
-
-1. **修改 HelloWorld 消息**：将输出内容改成"你好，ROS！"，重新编译运行。
-2. **添加第三个节点**：创建一个 Python 节点，输出当前时间（使用 `rospy.get_time()`）。
-3. **修改 launch 文件**：将新节点加入 `start_hello.launch`，一键启动三个节点。
-
----
-
-## 下一节
-
-我们已经成功运行了第一个 ROS 程序。接下来深入了解 ROS 的架构设计：
-
-→ **[1.5 ROS 架构](05-architecture.md)**
