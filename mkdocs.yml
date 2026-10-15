@@ -108,6 +108,9 @@ nav:
           - 2.1 话题通信: tutorial/chapter02/06-topic.md
           - 2.2 服务通信: tutorial/chapter02/07-service.md
           - 2.3 参数服务器: tutorial/chapter02/08-parameter.md
+          - 2.4 常用命令: tutorial/chapter02/09-commands.md
+          - 2.5 通信机制实操: tutorial/chapter02/10-communication-practice.md
+          - 2.6 通信机制比较: tutorial/chapter02/11-communication-comparison.md
   - 参考手册:
       - ROS 架构详解: arch.md
       - ROS 1 通信机制详解: comm.md

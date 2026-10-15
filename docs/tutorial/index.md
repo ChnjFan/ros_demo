@@ -61,9 +61,9 @@
 | [2.1 话题通信](chapter02/06-topic.md) | 理论模型 → 基本操作 (C++/Python) → 自定义 msg | ✅ |
 | [2.2 服务通信](chapter02/07-service.md) | 理论模型 → 自定义 srv → 调用 (C++/Python) | ✅ |
 | [2.3 参数服务器](chapter02/08-parameter.md) | 理论模型 → 参数操作 (C++/Python) | ✅ |
-| [2.4 常用命令](chapter09/09-commands.md) | rosnode / rostopic / rosmsg / rosservice / rossrv / rosparam | ⬜ |
-| [2.5 通信机制实操](chapter10/10-communication-practice.md) | 话题发布 / 话题订阅 / 服务调用 / 参数设置 | ⬜ |
-| [2.6 通信机制比较](chapter11/11-communication-comparison.md) | 四种通信方式对比与选型 | ⬜ |
+| [2.4 常用命令](chapter02/09-commands.md) | rosnode / rostopic / rosmsg / rosservice / rossrv / rosparam | ✅ |
+| [2.5 通信机制实操](chapter02/10-communication-practice.md) | 话题发布 / 话题订阅 / 服务调用 / 参数设置 | ✅ |
+| [2.6 通信机制比较](chapter02/11-communication-comparison.md) | 四种通信方式对比与选型 | ✅ |
 
 ---
 
